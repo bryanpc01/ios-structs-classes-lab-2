@@ -7,10 +7,19 @@ Using the Room struct below, write code that demonstrates that it is a value typ
 
 ```swift
 struct Room {
-     let maxOccupancy: Int
-     let length: Double
-     let width: Double
+    var maxOccupancy: Int
+    var length: Double
+    var width: Double
 }
+
+var myRoom = Room(maxOccupancy: 2, length: 12, width: 11)
+var momRoom = myRoom
+momRoom.maxOccupancy = 4
+momRoom.width = 20
+momRoom.length = 20
+
+print(myRoom.maxOccupancy)
+print(momRoom.maxOccupancy)
 ```
 
 ## Question 2
@@ -22,25 +31,51 @@ class Bike {
     var wheelNumber = 2
     var hasBell = false
 }
+
+let bikeNoBell = Bike()
+let bikeBell = bikeNoBell
+bikeBell.hasBell = true
+
+print(bikeNoBell.hasBell)
+print(bikeBell.hasBell)
 ```
 
 ## Question 3
 
 a. Given the Animal class below, create a Bird subclass with a new `canFly` property.
 
+b. Override the printDescription method to have the instance of the Bird object print out its name and whether it can fly
+
+
 ```swift
 class Animal {
     var name: String = ""
+
     func printDescription() {
         print("I am an animal named \(name)")
     }
 }
-```
 
-b. Override the printDescription method to have the instance of the Bird object print out its name and whether it can fly
+class Bird: Animal {
+    let canFly = false
+
+    override func printDescription() {
+        let flyString = canFly ? "I can fly" : "I cannot fly"
+        print("I am a bird named \(name) and \(flyString).")
+    }
+}
+
+let birdy = Bird()
+birdy.name = "Birdy"
+birdy.printDescription()
+```
 
 
 ## Question 4
+
+a. Create a `LoudBike` subclass of Bike.  When you call `ringBell` it should ring the bell in all caps.
+
+b. Give `LoudBike` a new method called `ringBell(times:)` that rings the bell a given number of times
 
 ```swift
 class Bike {
@@ -53,12 +88,24 @@ class Bike {
     }
   }
 }
+
+class Loudbike: Bike {
+    override func ringBell() {
+        if hasBell {
+            print("RING!")
+        }
+    }
+
+    func ringBell(times: Int) {
+        for _ in 1...times {
+            self.ringBell()
+        }
+    }
+}
+
+let loudBike = Loudbike()
+loudBike.ringBell(times: 3)
 ```
-
-
-a. Create a `LoudBike` subclass of Bike.  When you call `ringBell` it should ring the bell in all caps.
-
-b. Give `LoudBike` a new method called `ringBell(times:)` that rings the bell a given number of times
 
 
 ## Question 5
@@ -77,9 +124,43 @@ b. Override the `area` and `perimeter` computed values so it returns the area/pe
 
 c. Override the `name` property of `Square` so that it returns a String containing its name ("Square") and its area and perimeter
 
+```swift
+class Square: Shape {
+    var sideLength = 5.0
+    override var area: Double {
+        return sideLength * sideLength
+    }
+    override var perimeter: Double {
+        return sideLength * 4
+    }
+    override var name: String {
+        return "Square with an area of \(self.area) and a perimeter of \(self.perimeter)."
+    }
+}
+```
+
 d. Create a class `Rectangle` that subclasses from `Shape`.  Give it a `width` property with a default value of 6 and a `height` property with a default value of 4
 
 e. Override the `name` property of `Rectangle` so that it returns a String containing its name ("Rectangle") and its area and perimeter.
+
+```swift
+class Rectangle: Shape {
+    var width = 6.0
+    var height = 4.0
+
+    override var area: Double {
+        return width * height
+    }
+
+    override var perimeter: Double {
+        return (2 * width) + (2 * height)
+    }
+
+    override var name: String {
+        return "Rectangle with an area of \(self.area) and a perimeter of \(self.perimeter)."
+    }
+}
+```
 
 f. (BONUS) What happens when you run the code below?  Explain why.
 
@@ -91,6 +172,21 @@ myShapes.append(Rectangle())
 
 for shape in myShapes {
     print("This is a \(shape.name) with an area of \(shape.area) and a perimeter of \(shape.perimeter)")
+}
+```
+
+*The code will print with redundnacy. The name property of the shapes already prints the area and perimeter.*
+
+**Updated code below**
+
+```swift
+var myShapes = [Shape]()
+
+myShapes.append(Square())
+myShapes.append(Rectangle())
+
+for shape in myShapes {
+    print("This is a \(shape.name) with an area of \(shape.area)")
 }
 ```
 
@@ -113,7 +209,10 @@ struct Point {
     let x: Double
     let y: Double
     func distance(to point: Point) -> Double {
-      //Code in your answer here
+        let horizontal = self.x - point.x
+        let vertical = self.y - point.y
+        
+        return sqrt( (horizontal * horizontal) + (vertical * vertical) )
     }
 }
 
@@ -130,12 +229,23 @@ b. Given the above Point object, and Circle object below, add a `contains` metho
 struct Circle {
     let radius: Double
     let center: Point
+    
+    func contains(_ point: Point) -> Bool {
+        return self.center.distance(to: point) <= self.radius
+    }
+    
+    func getRandomPoint() -> Point {
+        let randomX: Double = Double.random(in: (self.center.x - self.radius)...(self.center.x + self.radius) )
+        let randomY: Double = sqrt((self.radius * self.radius) - (randomX * randomX) )
+        
+        return Point(x: randomX, y: randomY)
+    }
 }
 
 let pointOne = Point(x: 0, y: 0)
 let circleOne = Circle(radius: 5, center: pointOne)
 let pointTwo = Point(x: 5, y: 0)
-let pointThree = Point(x: 4, y: 0)
+let pointThree = Point(x: 6, y: 0)
 let pointFour = Point(x: sqrt(12.5), y: sqrt(12.5))
 circleOne.contains(pointTwo) //true
 circleOne.contains(pointThree) // false
@@ -162,10 +272,48 @@ a. Create a struct called HangmanModel with 3 properties `targetWord: String`, `
 b. Add a method called `playerWon` that returns whether all of the characters in `targetWord` are in `guessedLetters`
 
 ```swift
+struct HangmanModel {
+    var targetWord: String = "No Word Entered"
+    var numberOfIncorrectGuesses: Int = 5
+    var guessedLetters: [Character] = []
+
+    func playerWon() -> Bool {
+        for character in targetWord where !guessedLetters.contains(character) {
+            return false
+        }
+            return true
+    }
+    
+    func printDisplayVersionOfWord() {
+        var output = ""
+        for character in targetWord {
+            if !guessedLetters.contains(character) {
+                output += "_"
+            } else {
+                output += String(character)
+            }
+        }
+        print(output)
+    }
+    
+    mutating func guess(_ char: Character) {
+        guessedLetters.append(char)
+        numberOfIncorrectGuesses = targetWord.contains(char) ? numberOfIncorrectGuesses : numberOfIncorrectGuesses + 1
+        printDisplayVersionOfWord()
+        print("Number of Incorrect Guesses: \(numberOfIncorrectGuesses)")
+        
+        if playerWon() {
+            print("Congrats! You Won!")
+        }
+    }
+}
+```
+
+```swift
 var model = HangmanModel()
 model.targetWord = "hello"
 model.guessedLetters = ["h","e","o","l"]
-model.playerWon //true
+model.playerWon() //true
 ```
 
 c. Add a method called `printDisplayVersionOfWord` that prints the `targetWord` replacing characters that are not in `guessedLetters` with "\_"
@@ -190,3 +338,13 @@ model.numberOfIncorrectGuesses // 1
 ```
 
 e. Have `guess(_:)` also print out the current display version of the word, the number of incorrect guesses and if the player has won.
+
+```swift
+var model = HangmanModel()
+model.targetWord = "hello"
+model.guess("h")
+model.guess("a")
+model.guess("e")
+model.guess("l")
+model.guess("o")
+```
